@@ -3,6 +3,8 @@
 
 Shape::Shape()
 {
+	numVert = 0;
+	progIndex = NULL;
 }
 
 Shape::Shape(const Shape& shapeCopy)
@@ -13,6 +15,10 @@ Shape::Shape(GLfloat verts[], int numVert, GLuint progIndex)
 {
 	this->numVert = numVert;
 	this->progIndex = progIndex;
+
+	//does it matter if this uses the parameter progIndex
+	uniformColorLoc = glGetUniformLocation(progIndex, "uniformColor");
+	uniformMatrixLoc = glGetUniformLocation(progIndex, "worldMatrix");
 
 	//create one Vertex Array object name and save it in vAO
 	glGenVertexArrays(1, &vAO);
@@ -50,8 +56,13 @@ Shape::~Shape()
 	glDeleteBuffers(1, &vBO);
 }
 
-void Shape::draw(GLenum drawType)
+void Shape::draw(glm::vec3 position, glm::vec3 scale, glm::vec3 rotationAxis, float rotationAngle, glm::vec3 color, GLenum drawType)
 {
+	glm::mat4 worldMatrix = glm::translate(position) * glm::scale(scale) * glm::rotate(rotationAngle, rotationAxis);
+
+	glProgramUniformMatrix4fv(progIndex, uniformMatrixLoc, 1, GL_FALSE, &worldMatrix[0][0]);
+	glProgramUniform4f(progIndex, uniformColorLoc, color.r, color.g, color.b, 1.0f);
+
 	//not sure why we rebind the vertex array
 	glBindVertexArray(vAO);
 

@@ -34,6 +34,8 @@ int WindowManager::init(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(windowPtr);
 
+	glfwSetMouseButtonCallback(windowPtr, GameWorld::mouseClick);
+
 	if (!GameWorld::init())
 	{
 		glfwTerminate();
@@ -44,7 +46,7 @@ int WindowManager::init(void)
 	while (!glfwWindowShouldClose(windowPtr))
 	{
 
-		GameWorld::update();
+		GameWorld::update(windowPtr);
 		GameWorld::draw();
 
 #pragma region How_To_Make_Arsen_Mad
