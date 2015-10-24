@@ -1,9 +1,9 @@
 #include "GameWorld.h"
 
-bool GameWorld::heldDown = false;
 int GameWorld::numTri = 0;
 GLuint GameWorld::progIndex = -1;
 GLuint GameWorld::vAO;
+bool GameWorld::heldDown = false;
 std::vector<Shape*> GameWorld::shapePtrs = std::vector<Shape*>(0);
 std::vector<GameObject*> GameWorld::gameObjPtrs = std::vector<GameObject*>(0);
 
@@ -31,19 +31,15 @@ bool GameWorld::init()
 {
 	//allows the use of new features
 	glewExperimental = true;
-	GLenum glewError = glewInit();
-	if (glewError != GLEW_OK)
+	if (glewInit() != GLEW_OK)
 	{
-		printf("glew init error \n%s\n", glewGetErrorString(glewError));
+		//printf("glew init error \n%s\n", glewGetErrorString(glewError));
+		std::cout << "ERROR: GLEW did not initialize." << std::endl;
 		return false;
 	}
 
-	//gets the current OpenGl version the graphics card supports and prints it
-	const GLubyte* glVersion = glGetString(GL_VERSION);
-	std::cout << "OpenGL version: " << glVersion << std::endl;
-	//gets the current GLSL version the graphics card supports and prints it
-	const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
-	std::cout << "GLSL Version: " << glslVersion << std::endl;
+	//glClearColor(0.5f, 0.75f, 0.5f, 1.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	progIndex = ShaderManager::loadShaderProgram("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 	if (progIndex == 0)
@@ -57,16 +53,25 @@ bool GameWorld::init()
 	glGenVertexArrays(1, &vAO);
 	glBindVertexArray(vAO);
 
-	//a array holding a basic triangle
-	//make it's center the origin
-	float verts[] = { -0.25f, -0.25f, 0.0f, 0.0f, 1.0f,
-					0.0f, 0.25f, 0.0f, 1.0f, 0.0f,
-					0.25f, -0.25f, 1.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> verts;
+	std::vector<GLushort> elements;
 
-	for (int i = 0; i < 100; ++i)
+	if (!ModelLoaderManager::loadObj("Models/cube.obj", verts, elements))
 	{
-		shapePtrs.push_back(new Shape(verts, 3, progIndex));
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
 	}
+
+
+	for (int i = 0; i < 1; ++i)
+	{
+		shapePtrs.push_back(new Shape(verts, verts.size(), elements, elements.size(), progIndex));
+	}
+
+	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
+
+	gameObjPtrs.push_back(new GameObject(shapePtrs[gameObjPtrs.size()], threeDZero, threeDZero, 1.0f, glm::vec3(1, 1, 0), 0, glm::vec3(1.0f, 0.0f, 0.0f)));
 
 	//background color (It's a very ugly color)
 	glClearColor(0.5f, 0.75f, 0.5f, 1.0f);
@@ -76,18 +81,6 @@ bool GameWorld::init()
 
 void GameWorld::update(GLFWwindow* windowPtr)
 {
-	int currentTime = (int)(glfwGetTime() * 1000);
-
-	float velX = (((float)(rand() % 200) / 100) - 1.0f) / 100;
-	float velY = (((float)(rand() % 200) / 100) - 1.0f) / 100;
-
-	float rotAngle = ((float)(rand() % 100) / 100000);
-
-	numTri = gameObjPtrs.size();
-	
-	if (heldDown == true && gameObjPtrs.size() < 100)
-		gameObjPtrs.push_back(new GameObject(shapePtrs[numTri], glm::vec3(getCursorPos(windowPtr), 0.0f), glm::vec3(velX, velY, 0.0f), 0.2f, glm::vec3(0.0f, 0.0f, 1.0f), rotAngle, glm::vec3(1.0f, 1.0f, 1.0f)));//scale:0.2f
-
 	for (int i = 0; i < gameObjPtrs.size(); ++i)
 	{
 		gameObjPtrs[i]->update();

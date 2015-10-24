@@ -34,7 +34,7 @@ int WindowManager::init(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(windowPtr);
 
-	glfwSetMouseButtonCallback(windowPtr, GameWorld::mouseClick);
+	//glfwSetMouseButtonCallback(windowPtr, GameWorld::mouseClick);
 
 	if (!GameWorld::init())
 	{
@@ -48,19 +48,6 @@ int WindowManager::init(void)
 
 		GameWorld::update(windowPtr);
 		GameWorld::draw();
-
-#pragma region How_To_Make_Arsen_Mad
-		//How to make Arsen mad
-			//use the fixed pipeline (aka what's below)
-		/*glBegin(GL_TRIANGLES);
-			glColor3f(1, 0, 0);
-			glVertex3f(-1, 0, 0);
-			glColor3f(0, 1, 0);
-			glVertex3f(0, 1, 0);
-			glColor3f(0, 0, 1);
-			glVertex3f(1, 0, 0);
-		glEnd();*/
-#pragma endregion Open Up To See
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(windowPtr);

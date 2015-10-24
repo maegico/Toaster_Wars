@@ -3,6 +3,8 @@
 
 #include <glew.h>
 #include <iostream>
+#include <vector>
+#include <SOIL.h>
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 //will probably change this class later on
@@ -13,7 +15,7 @@ class Shape
 {
 public:
 	Shape();
-	Shape(GLfloat verts[], int numVert, GLuint progIndex);
+	Shape(std::vector<glm::vec3> verts, int numVert, std::vector<GLushort> elements, int numElements, GLuint progIndex);
 	Shape(const Shape& shapeCopy);
 	~Shape();
 
@@ -27,7 +29,9 @@ private:
 	//exchange data with GPU about where the vertex buffer objects are
 	//with vertex array objects
 	GLuint vAO;
+	GLuint elementBuffer;
 	int numVert;
+	int numElements;
 	GLuint progIndex;
 	GLuint uniformColorLoc;
 	GLuint uniformMatrixLoc;

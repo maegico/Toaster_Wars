@@ -83,18 +83,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CameraObject.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameWorld.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelLoaderManager.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraObject.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameWorld.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="ModelLoaderManager.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="WindowManager.h" />

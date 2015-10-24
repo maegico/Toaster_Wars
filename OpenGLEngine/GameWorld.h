@@ -9,20 +9,25 @@
 #include "ShaderManager.h"
 #include "Shape.h"
 #include "GameObject.h"
+#include "ModelLoaderManager.h"
 
 class GameWorld
 {
 public:
+	//static std::vector<glm::vec2> uvs;
+	//static std::vector<glm::vec3> normals;
+
 	static bool init();
 	static void update(GLFWwindow* windowPtr);
 	static void draw();
 	static void mouseClick(GLFWwindow* windowPtr, int button, int action, int mods);
 
+
 private:
-	static bool heldDown;
 	static int numTri;
 	static GLuint progIndex;
 	static GLuint vAO;
+	static bool heldDown;
 	static std::vector<Shape*> shapePtrs;
 	static std::vector<GameObject*> gameObjPtrs;
 
