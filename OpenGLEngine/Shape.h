@@ -1,6 +1,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
+#include "MatrixData.h"
 #include <glew.h>
 #include <iostream>
 #include <vector>
@@ -15,11 +16,11 @@ class Shape
 {
 public:
 	Shape();
-	Shape(std::vector<glm::vec3> verts, int numVert, std::vector<GLushort> elements, int numElements, GLuint progIndex);
+	Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, GLuint progIndex);
 	Shape(const Shape& shapeCopy);
 	~Shape();
 
-	void draw(glm::vec3 position, glm::vec3 scale, glm::vec3 rotationAxis, float rotationAngle, glm::vec3 color, GLenum drawType);
+	void draw(modelMatrixData mmData, viewMatrixData vmData, windowData wndData, float fov, glm::vec3 color, GLenum drawType);
 	
 private:
 	//vertex buffer object
@@ -29,12 +30,12 @@ private:
 	//exchange data with GPU about where the vertex buffer objects are
 	//with vertex array objects
 	GLuint vAO;
-	GLuint elementBuffer;
-	int numVert;
-	int numElements;
+	int numVerts;
 	GLuint progIndex;
 	GLuint uniformColorLoc;
-	GLuint uniformMatrixLoc;
+	GLuint uniformModelMatrixLoc;
+	GLuint uniformViewMatrixLoc;
+	GLuint uniformProjectionMatrixLoc;
 };
 
 #endif

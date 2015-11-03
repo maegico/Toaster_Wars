@@ -6,6 +6,7 @@
 #include <glfw3.h>
 #include <iostream>
 #include <vector>
+#include "CameraObject.h"
 #include "ShaderManager.h"
 #include "Shape.h"
 #include "GameObject.h"
@@ -18,18 +19,23 @@ public:
 	//static std::vector<glm::vec3> normals;
 
 	static bool init();
-	static void update(GLFWwindow* windowPtr);
+	static bool update(GLFWwindow* windowPtr);
 	static void draw();
-	static void mouseClick(GLFWwindow* windowPtr, int button, int action, int mods);
-
+	static void keyPress(GLFWwindow* windowPtr, int key, int scancode, int action, int mods);
+	static void mouseMove(GLFWwindow* windowPtr, double xpos, double ypos);
 
 private:
+	static std::vector<Shape*> shapePtrs;
+	static std::vector<GameObject*> gameObjPtrs;
+	static CameraObject camera;
 	static int numTri;
 	static GLuint progIndex;
 	static GLuint vAO;
-	static bool heldDown;
-	static std::vector<Shape*> shapePtrs;
-	static std::vector<GameObject*> gameObjPtrs;
+	static float deltaTime;
+	static float lastFoV;
+	static glm::vec2 lastMousePos;
+	static double lastTime;
+	static bool quit;
 
 	GameWorld();
 	GameWorld(const GameWorld& gameWorldCopy);

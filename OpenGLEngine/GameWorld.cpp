@@ -1,11 +1,16 @@
 #include "GameWorld.h"
 
+std::vector<Shape*> GameWorld::shapePtrs = std::vector<Shape*>(0);
+std::vector<GameObject*> GameWorld::gameObjPtrs = std::vector<GameObject*>(0);
+CameraObject GameWorld::camera = CameraObject();
 int GameWorld::numTri = 0;
 GLuint GameWorld::progIndex = -1;
 GLuint GameWorld::vAO;
-bool GameWorld::heldDown = false;
-std::vector<Shape*> GameWorld::shapePtrs = std::vector<Shape*>(0);
-std::vector<GameObject*> GameWorld::gameObjPtrs = std::vector<GameObject*>(0);
+float GameWorld::deltaTime = 0.0f;
+float GameWorld::lastFoV = 0.0f;
+glm::vec2 GameWorld::lastMousePos = glm::vec2(0, 0);
+double GameWorld::lastTime = 0;
+bool GameWorld::quit = false;
 
 GameWorld::GameWorld()
 {
@@ -38,8 +43,10 @@ bool GameWorld::init()
 		return false;
 	}
 
-	//glClearColor(0.5f, 0.75f, 0.5f, 1.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glClearColor(0.5f, 0.75f, 0.5f, 1.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_CULL_FACE);
 
 	progIndex = ShaderManager::loadShaderProgram("Shaders/vertexShader.glsl", "Shaders/fragmentShader.glsl");
 	if (progIndex == 0)
@@ -54,9 +61,10 @@ bool GameWorld::init()
 	glBindVertexArray(vAO);
 
 	std::vector<glm::vec3> verts;
-	std::vector<GLushort> elements;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
 
-	if (!ModelLoaderManager::loadObj("Models/cube.obj", verts, elements))
+	if (!ModelLoaderManager::loadObj("Models/cube.obj", verts, uvs, normals))
 	{
 		std::cout << "ERROR: loadObj failed." << std::endl;
 		return false;
@@ -65,32 +73,46 @@ bool GameWorld::init()
 
 	for (int i = 0; i < 1; ++i)
 	{
-		shapePtrs.push_back(new Shape(verts, verts.size(), elements, elements.size(), progIndex));
+		shapePtrs.push_back(new Shape(verts, uvs, normals, progIndex));
 	}
 
 	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
 
-	gameObjPtrs.push_back(new GameObject(shapePtrs[gameObjPtrs.size()], threeDZero, threeDZero, 1.0f, glm::vec3(1, 1, 0), 0, glm::vec3(1.0f, 0.0f, 0.0f)));
-
-	//background color (It's a very ugly color)
-	glClearColor(0.5f, 0.75f, 0.5f, 1.0f);
-
+	gameObjPtrs.push_back(new GameObject(shapePtrs[gameObjPtrs.size()], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
+	
 	return true;
 }
 
-void GameWorld::update(GLFWwindow* windowPtr)
+bool GameWorld::update(GLFWwindow* windowPtr)
 {
 	for (int i = 0; i < gameObjPtrs.size(); ++i)
 	{
-		gameObjPtrs[i]->update();
+		gameObjPtrs[i]->setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
 	}
+
+	double currentTime = glfwGetTime();
+	deltaTime = float(currentTime - lastTime);
+
+	windowData wndData;
+	glfwGetWindowSize(windowPtr, &(wndData.width), &(wndData.height));
+	//to voom out and in - glfwGetMouseWheel() is depricated
+	//camera.setFoV = lastFoV - 5 * glfwGetMouseWheel();
+
+	for (int i = 0; i < gameObjPtrs.size(); ++i)
+	{
+		gameObjPtrs[i]->update(wndData);
+	}
+
+	lastTime = currentTime;
+
+	return quit;
 }
 
 void GameWorld::draw()
 {
 	//clears the buffer currently enabled for color writing
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//draw here
 	for (int i = 0; i < gameObjPtrs.size(); i++)
@@ -99,17 +121,6 @@ void GameWorld::draw()
 	}
 
 	glFlush();
-}
-
-void GameWorld::mouseClick(GLFWwindow* windowPtr, int button, int action, int mods)
-{
-	std::cout << "Num Shapes: " << shapePtrs.size() << std::endl;
-	std::cout << "Num GameObjs: " << gameObjPtrs.size() << std::endl;
-
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-		heldDown = true;
-	else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
-		heldDown = false;
 }
 
 glm::vec2 GameWorld::getCursorPos(GLFWwindow* windowPtr)
@@ -127,3 +138,31 @@ glm::vec2 GameWorld::getCursorPos(GLFWwindow* windowPtr)
 
 	return cursorPos;
 }
+
+void GameWorld::keyPress(GLFWwindow* windowPtr, int key, int scancode, int action, int mods)
+{
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_PRESS)
+		camera.position += camera.getUp() * deltaTime * camera.speed;
+	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_PRESS)
+		camera.position -= camera.getUp() * deltaTime * camera.speed;
+	if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && action == GLFW_PRESS)
+		camera.position += camera.getRight() * deltaTime * camera.speed;
+	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && action == GLFW_PRESS)
+		camera.position -= camera.getRight() * deltaTime * camera.speed;
+	//move forward
+	if ((key == GLFW_KEY_Z || key == GLFW_KEY_R) && action == GLFW_PRESS)
+		camera.position += camera.getForward() * deltaTime * camera.speed;
+	//move backward
+	if ((key == GLFW_KEY_X || key == GLFW_KEY_F) && action == GLFW_PRESS)
+		camera.position -= camera.getForward() * deltaTime * camera.speed;
+	if ((key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS)
+		quit = true;
+}
+void GameWorld::mouseMove(GLFWwindow* windowPtr, double xpos, double ypos)
+{
+	camera.turn((xpos - lastMousePos.x)/1000, (ypos - lastMousePos.y)/1000);
+
+	lastMousePos.x = xpos;
+	lastMousePos.y = ypos;
+}
+

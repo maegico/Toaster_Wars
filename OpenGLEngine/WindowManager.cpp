@@ -34,7 +34,9 @@ int WindowManager::init(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(windowPtr);
 
-	//glfwSetMouseButtonCallback(windowPtr, GameWorld::mouseClick);
+	glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
+	glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);
 
 	if (!GameWorld::init())
 	{
@@ -46,7 +48,8 @@ int WindowManager::init(void)
 	while (!glfwWindowShouldClose(windowPtr))
 	{
 
-		GameWorld::update(windowPtr);
+		if (GameWorld::update(windowPtr) == true)
+			break;
 		GameWorld::draw();
 
 		/* Swap front and back buffers */

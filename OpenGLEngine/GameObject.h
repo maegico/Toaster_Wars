@@ -6,6 +6,7 @@
 		Looking to reduce the amount of memory on the heap
 		also note sure why we need to have twice as many objects on the heap*/
 
+#include "MatrixData.h"
 #include "Shape.h"
 #include <glm\glm.hpp>
 
@@ -18,22 +19,25 @@ public:
 	glm::vec3 getVelocity();
 	void setPosition(glm::vec3 position);
 	glm::vec3 getPosition();
+	void setViewMatrixData(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
 
 	GameObject();
-	GameObject(Shape* shapePtr, glm::vec3 position, glm::vec3 velocity, float scale, glm::vec3 rotationAxis, float rotationAngle, glm::vec3 color);
+	GameObject(Shape* shapePtr, glm::vec3 position, glm::vec3 velocity, float scale, glm::vec3 rotationAxis, float rotationAngle, float fov, glm::vec3 color);
 	GameObject(const GameObject& gameObjectCopy);
 	~GameObject();
 
-	void update();
+	void update(windowData wndData);
 	void draw(GLenum drawType);
 
 private:
 	float thresholdVel;
 	float rad;
+	float fov;
 	Shape* shapePtr;
-	glm::vec3 position, velocity, rotationAxis, color;
-	float scale, rotationAngle;
-	
+	modelMatrixData mmData;
+	viewMatrixData vmData;
+	windowData wndData;
+	glm::vec3 velocity, color;
 };
 
 #endif
