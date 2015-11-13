@@ -3,46 +3,55 @@
 
 Shape::Shape()
 {
+	numVerts = 0;
+	progIndex = NULL;
 }
 
 Shape::Shape(const Shape& shapeCopy)
 {
 }
 
-Shape::Shape(GLfloat verts[], int numVert, GLuint progIndex)
+//check element's values
+Shape::Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, GLuint progIndex)
 {
-	this->numVert = numVert;
+	this->numVerts = verts.size();
 	this->progIndex = progIndex;
 
-	//create one Vertex Array object name and save it in vAO
+	//does it matter if this uses the parameter progIndex
+	uniformColorLoc = glGetUniformLocation(progIndex, "uniformColor");
+	uniformModelMatrixLoc = glGetUniformLocation(progIndex, "modelMatrix");
+	uniformViewMatrixLoc = glGetUniformLocation(progIndex, "viewMatrix");
+	uniformProjectionMatrixLoc = glGetUniformLocation(progIndex, "projectionMatrix");
+
+	int sizeVerts = sizeof(GL_FLOAT) * verts.size() * 3;
+	int sizeUVs = sizeof(GL_FLOAT) * uvs.size() * 2;
+	int sizeNormals = sizeof(GL_FLOAT) * normals.size() * 3;
+
 	glGenVertexArrays(1, &vAO);
-	//binds the vertex array with the name saved in vAO
-	glBindVertexArray(vAO);
-
-	//creates n number of buffer objects and saves them to the second parameter(which is an array)
 	glGenBuffers(1, &vBO);
-	//specifies to bind a GL_ARRAY_BUFFER(vertex attributes) to vBO
+
+	glBindVertexArray(vAO);
 	glBindBuffer(GL_ARRAY_BUFFER, vBO);
-	//creates a new data store and deletes any pre-existing data store
-		//Parameters: (type of buffer, size of buffer in bytes,
-			//a pointer to the data to store, usage of the data)
-		//GL_STATIC_DRAW -the contents will be changed once and used a lot
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * numVert * 5, verts, GL_STATIC_DRAW);
 
-	//position
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 5, 0);
-	//color
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GL_FLOAT) * 5, (void*)(sizeof(GL_FLOAT) * 2));
+	glBufferData(GL_ARRAY_BUFFER, sizeVerts + sizeUVs + sizeNormals, 0, GL_STATIC_DRAW);
 
-	//enables two generic vertex attribute arrays at index n(the parameter)
-	//for position data
+	//deal with buffer Sub Data
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeVerts, &verts[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeVerts, sizeUVs, &uvs[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeVerts + sizeUVs, sizeNormals, &normals[0]);
+
 	glEnableVertexAttribArray(0);
-	//for color data
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(1);
-	//define arrays of generic vertex data
-	//Parameters(array index, number of values, data type of values, normalized,
-	//size of total, offset in bytes)
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)(sizeVerts));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)(sizeVerts + sizeUVs));
+
+	//getting texture data into texture sampler
+	GLuint texID = SOIL_load_OGL_texture("Textures/default.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+	glBindTexture(GL_TEXTURE_2D, texID);
 }
+	
 
 Shape::~Shape()
 {
@@ -50,10 +59,16 @@ Shape::~Shape()
 	glDeleteBuffers(1, &vBO);
 }
 
-void Shape::draw(GLenum drawType)
+void Shape::draw(modelMatrixData mmData, viewMatrixData vmData, windowData wndData, float fov, glm::vec3 color, GLenum drawType)
 {
-	//not sure why we rebind the vertex array
-	glBindVertexArray(vAO);
+	glm::mat4 projectionMatrix = glm::perspective(fov, (float)(wndData.width / wndData.height), 0.01f, 1000.0f);
+	glm::mat4 viewMatrix = glm::lookAt(vmData. position, vmData.oneAhead, vmData.up);
+	glm::mat4 modelMatrix = glm::translate(mmData.position) * glm::scale(mmData.scale) * glm::rotate(mmData.rotationAngle, mmData.rotationAxis);
 
-	glDrawArrays(drawType, 0, numVert);
+	glProgramUniformMatrix4fv(progIndex, uniformModelMatrixLoc, 1, GL_FALSE, &modelMatrix[0][0]);
+	glProgramUniformMatrix4fv(progIndex, uniformViewMatrixLoc, 1, GL_FALSE, &viewMatrix[0][0]);
+	glProgramUniformMatrix4fv(progIndex, uniformProjectionMatrixLoc, 1, GL_FALSE, &projectionMatrix[0][0]);
+	glProgramUniform4f(progIndex, uniformColorLoc, color.r, color.g, color.b, 1.0f);
+
+	glDrawArrays(drawType, 0, numVerts);
 }

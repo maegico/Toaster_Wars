@@ -16,7 +16,6 @@ public:
 	static GLuint loadShader(const char* file, GLenum shaderType);
 	//reads in a vertex and fragment shader
 	static GLuint loadShaderProgram(const char* vertexFile, const char* fragmentFile);
-	static void setShaderColor(GLuint progIndex, const char* uniformColor, float r, float g, float b);
 
 private:
 	ShaderManager();

@@ -34,6 +34,10 @@ int WindowManager::init(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(windowPtr);
 
+	glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
+	glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);
+
 	if (!GameWorld::init())
 	{
 		glfwTerminate();
@@ -44,23 +48,11 @@ int WindowManager::init(void)
 	while (!glfwWindowShouldClose(windowPtr))
 	{
 
-		GameWorld::update();
+		if (GameWorld::update(windowPtr) == true)
+			break;
 		GameWorld::draw();
 
-#pragma region How_To_Make_Arsen_Mad
-		//How to make Arsen mad
-			//use the fixed pipeline (aka what's below)
-		/*glBegin(GL_TRIANGLES);
-			glColor3f(1, 0, 0);
-			glVertex3f(-1, 0, 0);
-			glColor3f(0, 1, 0);
-			glVertex3f(0, 1, 0);
-			glColor3f(0, 0, 1);
-			glVertex3f(1, 0, 0);
-		glEnd();*/
-#pragma endregion Open Up To See
-
-		/* Swap front and back buffers */
+		/* Swap front and ba ck buffers */
 		glfwSwapBuffers(windowPtr);
 
 		/* Poll for and process window events */

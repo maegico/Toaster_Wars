@@ -1,12 +1,22 @@
 #version 430
 
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec3 color;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 vecTexUV;
+layout (location = 2) in vec3 vecNorm;
 
-out vec4 vertColor;
+out vec2 fragTexUV;
+out vec3 fragPos;
+out vec3 fragNorm;
+
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
 void main()
 {
-    gl_Position = vec4(position, 0, 1);
-	vertColor = vec4(color, 1);
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1);
+
+	fragTexUV = vecTexUV;
+	fragPos = gl_Position.xyz;
+	fragNorm = normalize(vecNorm);
 }
