@@ -143,10 +143,3 @@ GLuint ShaderManager::loadShaderProgram(const char* vertexFile, const char* frag
 
 	return 0;
 }
-
-void ShaderManager::setShaderColor(GLuint progIndex, const char* uniformColor, float r, float g, float b)
-{
-	//returns -1 if the variable wasn't found
-	GLuint location = glGetUniformLocation(progIndex, uniformColor);
-	glProgramUniform4f(progIndex, location, r, g, b, 1.0f);
-}
