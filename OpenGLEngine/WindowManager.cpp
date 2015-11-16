@@ -1,6 +1,9 @@
 #include "WindowManager.h"
 
 GLFWwindow* WindowManager::windowPtr = nullptr;
+enum State {MainScreen, GameScreen, Paused, GameOver};
+
+State currentState = MainScreen;
 
 WindowManager::WindowManager()
 {
@@ -14,8 +17,17 @@ WindowManager::~WindowManager()
 {
 }
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+	{
+		currentState = GameScreen;
+	}
+}
+
 int WindowManager::init(void)
 {
+
 
 	//Code source: http://www.glfw.org/documentation.html
 
@@ -33,26 +45,37 @@ int WindowManager::init(void)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(windowPtr);
+	// Check current State
+	//if (currentState == GameScreen){
 
-	glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
-	glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);
+		//}
+	bool test = false;
 
-	if (!GameWorld::init())
-	{
-		glfwTerminate();
-		return -1;
-	}
+		if (!GameWorld::init())
+		{
+			glfwTerminate();
+			return -1;
+		}
+	
+
+	// Set a keycallback to change the State
+	glfwSetKeyCallback(windowPtr, key_callback);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(windowPtr))
 	{
+		// Check current State
+		if (currentState == GameScreen){
+			glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
+			glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);
 
 		if (GameWorld::update(windowPtr) == true)
 			break;
 		GameWorld::draw();
+		}
 
-		/* Swap front and ba ck buffers */
+		/* Swap front and back buffers */
 		glfwSwapBuffers(windowPtr);
 
 		/* Poll for and process window events */
