@@ -11,6 +11,12 @@ float GameWorld::lastFoV = 0.0f;
 glm::vec2 GameWorld::lastMousePos = glm::vec2(0, 0);
 double GameWorld::lastTime = 0;
 bool GameWorld::quit = false;
+bool camUp = false;
+bool camDown = false;
+bool camRight = false;
+bool camLeft = false;
+bool camForward = false;
+bool camBack = false;
 
 GameWorld::GameWorld()
 {
@@ -104,6 +110,19 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 		gameObjPtrs[i]->update(wndData);
 	}
 
+	if (camUp)
+		camera.position += camera.getUp() * deltaTime * camera.speed;
+	if (camDown)
+		camera.position -= camera.getUp() * deltaTime * camera.speed;
+	if (camLeft)
+		camera.position -= camera.getRight() * deltaTime * camera.speed;
+	if (camRight)
+		camera.position += camera.getRight() * deltaTime * camera.speed;
+	if (camForward)
+		camera.position += camera.getForward() * deltaTime * camera.speed;
+	if (camBack)
+		camera.position -= camera.getForward() * deltaTime * camera.speed;
+
 	lastTime = currentTime;
 
 	return quit;
@@ -142,19 +161,31 @@ glm::vec2 GameWorld::getCursorPos(GLFWwindow* windowPtr)
 void GameWorld::keyPress(GLFWwindow* windowPtr, int key, int scancode, int action, int mods)
 {
 	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_PRESS)
-		camera.position += camera.getUp() * deltaTime * camera.speed;
+		camUp = true;
 	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_PRESS)
-		camera.position -= camera.getUp() * deltaTime * camera.speed;
+		camDown = true;
 	if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && action == GLFW_PRESS)
-		camera.position += camera.getRight() * deltaTime * camera.speed;
+		camLeft = true;
 	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && action == GLFW_PRESS)
-		camera.position -= camera.getRight() * deltaTime * camera.speed;
+		camRight = true;
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_RELEASE)
+		camUp = false;
+	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_RELEASE)
+		camDown = false;
+	if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && action == GLFW_RELEASE)
+		camLeft = false;
+	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && action == GLFW_RELEASE)
+		camRight = false;
 	//move forward
 	if ((key == GLFW_KEY_Z || key == GLFW_KEY_R) && action == GLFW_PRESS)
-		camera.position += camera.getForward() * deltaTime * camera.speed;
+		camForward = true;
+	if ((key == GLFW_KEY_Z || key == GLFW_KEY_R) && action == GLFW_RELEASE)
+		camForward = false;
 	//move backward
 	if ((key == GLFW_KEY_X || key == GLFW_KEY_F) && action == GLFW_PRESS)
-		camera.position -= camera.getForward() * deltaTime * camera.speed;
+		camBack = true;
+	if ((key == GLFW_KEY_X || key == GLFW_KEY_F) && action == GLFW_RELEASE)
+		camBack = false;
 	if ((key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS)
 		quit = true;
 }
