@@ -1,9 +1,9 @@
 #include "WindowManager.h"
-
+#include "StateManager.h"
 GLFWwindow* WindowManager::windowPtr = nullptr;
-enum State {MainScreen, GameScreen, Paused, GameOver};
 
-State currentState = MainScreen;
+
+StateManager stateMan;
 
 WindowManager::WindowManager()
 {
@@ -21,14 +21,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 	{
-		currentState = GameScreen;
+		stateMan.setState(stateMan.GameScreen);
 	}
 }
 
 int WindowManager::init(void)
 {
-
-
+	
 	//Code source: http://www.glfw.org/documentation.html
 
 	/* Initialize the library */
@@ -61,11 +60,13 @@ int WindowManager::init(void)
 	// Set a keycallback to change the State
 	glfwSetKeyCallback(windowPtr, key_callback);
 
+	stateMan.setState(stateMan.MainMenu);
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(windowPtr))
 	{
 		// Check current State
-		if (currentState == GameScreen){
+		if (stateMan.getState() == stateMan.GameScreen){
 			glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
 			glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);

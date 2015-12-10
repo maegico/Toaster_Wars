@@ -91,6 +91,7 @@
     <ClCompile Include="ModelLoaderManager.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Shape.cpp" />
+    <ClCompile Include="StateManager.cpp" />
     <ClCompile Include="WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +103,7 @@
     <ClInclude Include="ModelLoaderManager.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Shape.h" />
+    <ClInclude Include="StateManager.h" />
     <ClInclude Include="WindowManager.h" />
   </ItemGroup>
   <ItemGroup>
