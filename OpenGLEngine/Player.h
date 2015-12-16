@@ -6,7 +6,12 @@ class Player :
 public:
 	Player();
 	~Player();
+	bool up;
+	bool down;
 
 private:
 	void getPickup();
+	void setVelocity();
+	void Shoot();
+	void changeHealth(int damage);
 };

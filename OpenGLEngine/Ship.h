@@ -1,20 +1,28 @@
 #pragma once
 
 #include "Bullet.h"
+#include <iostream>
+#include <vector>
+#include <glm\glm.hpp>
+
+using namespace std;
+using namespace glm;
 class Ship
 {
 public:
 	Ship();
-	~Ship();
+	virtual ~Ship() = 0;
 
-private:
+protected:
 	int health;
-	Bullet bullet;
+	vector<Bullet> bullets;
 	float time;
 	float bulletInterval;
+	vec3 velocity;
+	vec3 position;
 
-	void setVelocity();
-	void Shoot();
-	void changeHealth(int damage);
+	virtual void setVelocity() = 0;
+	virtual void Shoot() = 0;
+	virtual void changeHealth(int damage) = 0;
 };
 

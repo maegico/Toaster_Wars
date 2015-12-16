@@ -96,11 +96,7 @@ bool GameWorld::init()
 		return false;
 	}
 
-
-	for (int i = 0; i < 1; ++i)
-	{
-		shapePtrs.push_back(new Shape(model1.verts, model1.uvs, model1.normals, model1.texturePath.c_str(), progIndex));
-	}
+	shapePtrs.push_back(new Shape(model1.verts, model1.uvs, model1.normals, model1.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(toaster.verts, toaster.uvs, toaster.normals, toaster.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(toast1.verts, toast1.uvs, toast1.normals, toast1.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(toast2.verts, toast2.uvs, toast2.normals, toast2.texturePath.c_str(), progIndex));
@@ -110,7 +106,7 @@ bool GameWorld::init()
 	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
 
 	gameObjPtrs.push_back(new GameObject(shapePtrs[0], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
-	player = new GameObject(shapePtrs[1], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	player = new GameObject(shapePtrs[1], threeDZero, threeDZero, 0.5f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	enemy1 = new GameObject(shapePtrs[2], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	enemy2 = new GameObject(shapePtrs[3], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	pickup = new GameObject(shapePtrs[4], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -149,10 +145,11 @@ void GameWorld::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//draw here
-	for (int i = 0; i < gameObjPtrs.size(); i++)
+	/*for (int i = 0; i < gameObjPtrs.size(); i++)
 	{
 		gameObjPtrs[i]->draw(GL_TRIANGLES);
-	}
+	}*/
+	gameObjPtrs[0]->draw(GL_TRIANGLES);
 
 	glFlush();
 }
