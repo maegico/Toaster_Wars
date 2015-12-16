@@ -12,7 +12,7 @@ Shape::Shape(const Shape& shapeCopy)
 }
 
 //check element's values
-Shape::Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, GLuint progIndex)
+Shape::Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, const char* texturePath, GLuint progIndex)
 {
 	this->numVerts = verts.size();
 	this->progIndex = progIndex;
@@ -48,7 +48,7 @@ Shape::Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vect
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)(sizeVerts + sizeUVs));
 
 	//getting texture data into texture sampler
-	GLuint texID = SOIL_load_OGL_texture("Textures/default.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+	texID = SOIL_load_OGL_texture(texturePath, SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
 	glBindTexture(GL_TEXTURE_2D, texID);
 }
 	

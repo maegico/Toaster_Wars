@@ -16,7 +16,7 @@ class Shape
 {
 public:
 	Shape();
-	Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, GLuint progIndex);
+	Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, const char* texturePath, GLuint progIndex);
 	Shape(const Shape& shapeCopy);
 	~Shape();
 
@@ -31,6 +31,7 @@ private:
 	//with vertex array objects
 	GLuint vAO;
 	int numVerts;
+	GLuint texID;
 	GLuint progIndex;
 	GLuint uniformColorLoc;
 	GLuint uniformModelMatrixLoc;

@@ -85,12 +85,15 @@
   <ItemGroup>
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CameraObject.cpp" />
+    <ClCompile Include="Collider3D.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameWorld.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ModelLoaderManager.cpp" />
+    <ClCompile Include="OctNode.cpp" />
+    <ClCompile Include="OctTree.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="Shape.cpp" />
@@ -100,12 +103,15 @@
   <ItemGroup>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="CameraObject.h" />
+    <ClInclude Include="Collider3D.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameWorld.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="MatrixData.h" />
     <ClInclude Include="ModelLoaderManager.h" />
+    <ClInclude Include="OctNode.h" />
+    <ClInclude Include="OctTree.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="Shape.h" />

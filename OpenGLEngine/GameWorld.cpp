@@ -66,11 +66,10 @@ bool GameWorld::init()
 	glGenVertexArrays(1, &vAO);
 	glBindVertexArray(vAO);
 
-	std::vector<glm::vec3> verts;
-	std::vector<glm::vec2> uvs;
-	std::vector<glm::vec3> normals;
+	modelData model1 = { "Textures/default.png", "Models/cube.obj", std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
 
-	if (!ModelLoaderManager::loadObj("Models/cube.obj", verts, uvs, normals))
+
+	if (!ModelLoaderManager::loadObj(model1.modelPath, model1.verts, model1.uvs, model1.normals))
 	{
 		std::cout << "ERROR: loadObj failed." << std::endl;
 		return false;
@@ -79,7 +78,7 @@ bool GameWorld::init()
 
 	for (int i = 0; i < 1; ++i)
 	{
-		shapePtrs.push_back(new Shape(verts, uvs, normals, progIndex));
+		shapePtrs.push_back(new Shape(model1.verts, model1.uvs, model1.normals, model1.texturePath.c_str(), progIndex));
 	}
 
 	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);

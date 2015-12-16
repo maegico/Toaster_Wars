@@ -12,6 +12,15 @@
 #include "GameObject.h"
 #include "ModelLoaderManager.h"
 
+struct modelData
+{
+	std::string texturePath;
+	std::string modelPath;
+	std::vector<glm::vec3> verts;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
+};
+
 class GameWorld
 {
 public:
