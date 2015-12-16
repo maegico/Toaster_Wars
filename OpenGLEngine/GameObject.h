@@ -8,6 +8,7 @@
 
 #include "MatrixData.h"
 #include "Shape.h"
+#include "Collider3D.h"
 #include <glm\glm.hpp>
 
 class GameObject
@@ -20,6 +21,8 @@ public:
 	void setPosition(glm::vec3 position);
 	glm::vec3 getPosition();
 	void setViewMatrixData(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
+
+	Collider3D* colliderPtr;
 
 	GameObject();
 	GameObject(Shape* shapePtr, glm::vec3 position, glm::vec3 velocity, float scale, glm::vec3 rotationAxis, float rotationAngle, float fov, glm::vec3 color);

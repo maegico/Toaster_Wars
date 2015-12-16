@@ -114,7 +114,7 @@ bool GameWorld::init()
 	enemy1 = new GameObject(shapePtrs[2], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	enemy2 = new GameObject(shapePtrs[3], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	pickup = new GameObject(shapePtrs[4], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
-	
+
 	return true;
 }
 
