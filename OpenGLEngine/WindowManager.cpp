@@ -34,9 +34,9 @@ int WindowManager::init(void)
 	/* Make the window's context current */
 	glfwMakeContextCurrent(windowPtr);
 
-	glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
-	glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);
+	//glfwSetInputMode(windowPtr, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetKeyCallback(windowPtr, GameWorld::keyPress);
+	//glfwSetCursorPosCallback(windowPtr, GameWorld::mouseMove);
 
 	if (!GameWorld::init())
 	{

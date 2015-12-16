@@ -11,12 +11,10 @@ float GameWorld::lastFoV = 0.0f;
 glm::vec2 GameWorld::lastMousePos = glm::vec2(0, 0);
 double GameWorld::lastTime = 0;
 bool GameWorld::quit = false;
-bool camUp = false;
-bool camDown = false;
-bool camRight = false;
-bool camLeft = false;
-bool camForward = false;
-bool camBack = false;
+GameObject* player;
+GameObject* enemy1;
+GameObject* enemy2;
+GameObject* pickup;
 
 GameWorld::GameWorld()
 {
@@ -67,9 +65,32 @@ bool GameWorld::init()
 	glBindVertexArray(vAO);
 
 	modelData model1 = { "Textures/default.png", "Models/cube.obj", std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
-
+	modelData toaster = { "Textures/toaster.png", "Models/toaster.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
+	modelData toast1 = { "Textures/toast1.png", "Models/toast1.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
+	modelData toast2 = { "Textures/toast2.png", "Models/toast2.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
+	modelData peanutButter = { "Textures/peanutButter.png", "Models/peanutButterPickup.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
 
 	if (!ModelLoaderManager::loadObj(model1.modelPath, model1.verts, model1.uvs, model1.normals))
+	{
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
+	}
+	if (!ModelLoaderManager::loadObj(toaster.modelPath, toaster.verts, toaster.uvs, toaster.normals))
+	{
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
+	}
+	if (!ModelLoaderManager::loadObj(toast1.modelPath, toast1.verts, toast1.uvs, toast1.normals))
+	{
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
+	}
+	if (!ModelLoaderManager::loadObj(toast2.modelPath, toast2.verts, toast2.uvs, toast2.normals))
+	{
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
+	}
+	if (!ModelLoaderManager::loadObj(peanutButter.modelPath, peanutButter.verts, peanutButter.uvs, peanutButter.normals))
 	{
 		std::cout << "ERROR: loadObj failed." << std::endl;
 		return false;
@@ -80,11 +101,19 @@ bool GameWorld::init()
 	{
 		shapePtrs.push_back(new Shape(model1.verts, model1.uvs, model1.normals, model1.texturePath.c_str(), progIndex));
 	}
+	shapePtrs.push_back(new Shape(toaster.verts, toaster.uvs, toaster.normals, toaster.texturePath.c_str(), progIndex));
+	shapePtrs.push_back(new Shape(toast1.verts, toast1.uvs, toast1.normals, toast1.texturePath.c_str(), progIndex));
+	shapePtrs.push_back(new Shape(toast2.verts, toast2.uvs, toast2.normals, toast2.texturePath.c_str(), progIndex));
+	shapePtrs.push_back(new Shape(peanutButter.verts, peanutButter.uvs, peanutButter.normals, peanutButter.texturePath.c_str(), progIndex));
 
 	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
 
-	gameObjPtrs.push_back(new GameObject(shapePtrs[gameObjPtrs.size()], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
+	gameObjPtrs.push_back(new GameObject(shapePtrs[0], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
+	player = new GameObject(shapePtrs[1], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	enemy1 = new GameObject(shapePtrs[2], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	enemy2 = new GameObject(shapePtrs[3], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	pickup = new GameObject(shapePtrs[4], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	
 	return true;
 }
@@ -108,19 +137,6 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	{
 		gameObjPtrs[i]->update(wndData);
 	}
-
-	if (camUp)
-		camera.position += camera.getUp() * deltaTime * camera.speed;
-	if (camDown)
-		camera.position -= camera.getUp() * deltaTime * camera.speed;
-	if (camLeft)
-		camera.position -= camera.getRight() * deltaTime * camera.speed;
-	if (camRight)
-		camera.position += camera.getRight() * deltaTime * camera.speed;
-	if (camForward)
-		camera.position += camera.getForward() * deltaTime * camera.speed;
-	if (camBack)
-		camera.position -= camera.getForward() * deltaTime * camera.speed;
 
 	lastTime = currentTime;
 
@@ -159,32 +175,6 @@ glm::vec2 GameWorld::getCursorPos(GLFWwindow* windowPtr)
 
 void GameWorld::keyPress(GLFWwindow* windowPtr, int key, int scancode, int action, int mods)
 {
-	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_PRESS)
-		camUp = true;
-	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_PRESS)
-		camDown = true;
-	if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && action == GLFW_PRESS)
-		camLeft = true;
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && action == GLFW_PRESS)
-		camRight = true;
-	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_RELEASE)
-		camUp = false;
-	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_RELEASE)
-		camDown = false;
-	if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && action == GLFW_RELEASE)
-		camLeft = false;
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && action == GLFW_RELEASE)
-		camRight = false;
-	//move forward
-	if ((key == GLFW_KEY_Z || key == GLFW_KEY_R) && action == GLFW_PRESS)
-		camForward = true;
-	if ((key == GLFW_KEY_Z || key == GLFW_KEY_R) && action == GLFW_RELEASE)
-		camForward = false;
-	//move backward
-	if ((key == GLFW_KEY_X || key == GLFW_KEY_F) && action == GLFW_PRESS)
-		camBack = true;
-	if ((key == GLFW_KEY_X || key == GLFW_KEY_F) && action == GLFW_RELEASE)
-		camBack = false;
 	if ((key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS)
 		quit = true;
 }
