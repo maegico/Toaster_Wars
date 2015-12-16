@@ -32,11 +32,13 @@ void GameObject::setViewMatrixData(glm::vec3 position, glm::vec3 oneAhead, glm::
 }
 
 
+
 GameObject::GameObject()
 {
 	this->thresholdVel = 0.000005f;
 	this->rad = 0.25f;
-	this->shapePtr = NULL;
+	this->colliderPtr = nullptr;
+	this->shapePtr = nullptr;
 	mmData.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	this->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 	mmData.scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -62,6 +64,30 @@ GameObject::GameObject(Shape* shapePtr, glm::vec3 position, glm::vec3 velocity, 
 	this->color = color;
 	wndData.width = 400;
 	wndData.height = 300;
+
+	glm::vec3 minOBB = shapePtr->verts[0];
+	glm::vec3 maxOBB = shapePtr->verts[0];
+
+	for (glm::vec3 vert : shapePtr->verts)
+	{
+		glm::vec3 vertN = vert * mmData.scale;
+		if (vertN.x < minOBB.x)
+			minOBB.x = vertN.x;
+		else if (vertN.x > maxOBB.x)
+			maxOBB.x = vertN.x;
+
+		if (vertN.y < minOBB.y)
+			minOBB.y = vertN.y;
+		else if (vertN.y > maxOBB.y)
+			maxOBB.y = vertN.y;
+
+		if (vertN.z < minOBB.z)
+			minOBB.z = vertN.z;
+		else if (vertN.z > maxOBB.z)
+			maxOBB.z = vertN.z;
+	}
+
+	this->colliderPtr = new Collider3D((maxOBB + minOBB) * 0.5f, (maxOBB - minOBB) * 0.5f);
 }
 
 GameObject::GameObject(const GameObject& gameObjectCopy)
@@ -70,12 +96,43 @@ GameObject::GameObject(const GameObject& gameObjectCopy)
 
 GameObject::~GameObject()
 {
+	if (colliderPtr != nullptr)
+		delete colliderPtr;
 }
 
+glm::vec3 halfpoint(glm::vec3 vec1, glm::vec3 vec2)
+{
+	return (vec2 - vec1) * 0.5f;
+}
 
 void GameObject::update(windowData wndData)
 {
 	mmData.rotationAngle = 0.3f;
+
+	/*glm::vec3 minOBB = shapePtr->verts[0];
+	glm::vec3 maxOBB = shapePtr->verts[0];
+
+	for (glm::vec3 vert : shapePtr->verts)
+	{
+		glm::vec3 vertN = vert * mmData.scale;
+		if (vertN.x < minOBB.x)
+			minOBB.x = vertN.x;
+		else if (vertN.x > maxOBB.x)
+			maxOBB.x = vertN.x;
+
+		if (vertN.y < minOBB.y)
+			minOBB.y = vertN.y;
+		else if (vertN.y > maxOBB.y)
+			maxOBB.y = vertN.y;
+
+		if (vertN.z < minOBB.z)
+			minOBB.z = vertN.z;
+		else if (vertN.z > maxOBB.z)
+			maxOBB.z = vertN.z;
+	}
+
+	this->colliderPtr->c = (maxOBB + minOBB) * 0.5f;
+	this->colliderPtr->e = (maxOBB - minOBB) * 0.5f;*/
 
 	this->wndData = wndData;
 	/*

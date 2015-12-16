@@ -83,7 +83,7 @@ bool GameWorld::init()
 
 	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
-
+	
 	gameObjPtrs.push_back(new GameObject(shapePtrs[gameObjPtrs.size()], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
 	
 	return true;

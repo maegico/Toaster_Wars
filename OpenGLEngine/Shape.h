@@ -20,6 +20,8 @@ public:
 	Shape(const Shape& shapeCopy);
 	~Shape();
 
+	std::vector<glm::vec3> verts;
+
 	void draw(modelMatrixData mmData, viewMatrixData vmData, windowData wndData, float fov, glm::vec3 color, GLenum drawType);
 	
 private:

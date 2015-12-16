@@ -14,6 +14,7 @@ Shape::Shape(const Shape& shapeCopy)
 //check element's values
 Shape::Shape(std::vector<glm::vec3> verts, std::vector<glm::vec2> uvs, std::vector<glm::vec3> normals, const char* texturePath, GLuint progIndex)
 {
+	this->verts = verts;
 	this->numVerts = verts.size();
 	this->progIndex = progIndex;
 
