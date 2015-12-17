@@ -23,6 +23,7 @@ GameObject* bulletGO;
 //OctTree tree;
 vector<Enemy*> enemies;
 vector<GameObject*> pickups;
+vector<Bullet> temp;
 Player play;
 int score;
 float enemyTimer;
@@ -192,6 +193,10 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	{
 		if(p != NULL) p->setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
 	}
+	for each(Bullet b in temp)
+	{
+		b.setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
+	}
 
 	double currentTime = glfwGetTime();
 	deltaTime = float(currentTime - lastTime);
@@ -211,6 +216,15 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	for each(GameObject* p in pickups)
 	{
 		if(p != NULL) p->update(wndData);
+	}
+	for (int i = 0; i < temp.size(); i++)
+	{
+		Bullet b = temp[i];
+		b.update(deltaTime);
+		if(b.getPosition().x <= -1)
+		{
+			temp.erase(temp.begin() + i);
+		}
 	}
 
 	enemyTimer += deltaTime;
@@ -247,10 +261,20 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 			if (test)
 			{
 				pickups.push_back(dropPickup(e->getOBJ()));
-				//enemies.erase(enemies.begin() + i);
+				for each(Bullet b in e->bullets)
+				{
+					temp.push_back(b);
+				}
+				enemies.erase(enemies.begin() + i);
 			}
 		}
 		damageTimer = 0;
+	}
+
+	if (!play.playing)
+	{
+		cout << "You lose! Your score is: " << score << endl;
+		quit = true;
 	}
 
 	lastTime = currentTime;
@@ -288,6 +312,10 @@ void GameWorld::draw()
 	{
 		if(p != NULL) p->draw(GL_TRIANGLES);
 	}
+	for each(Bullet b in temp)
+	{
+		b.draw();
+	}
 
 	glFlush();
 }
@@ -324,6 +352,10 @@ void GameWorld::keyPress(GLFWwindow* windowPtr, int key, int scancode, int actio
 		play.shooting = false;
 	if ((key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS)
 		quit = true;
+	if ((key == GLFW_KEY_L) && action == GLFW_PRESS)
+	{
+		play.changeHealth(-10);
+	}
 }
 void GameWorld::mouseMove(GLFWwindow* windowPtr, double xpos, double ypos)
 {

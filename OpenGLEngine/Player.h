@@ -15,6 +15,9 @@ public:
 	bool down;
 	bool shooting;
 	float time;
+	bool powerup;
+	float powerUpTimer;
+	bool playing;
 
 private:
 	void getPickup();

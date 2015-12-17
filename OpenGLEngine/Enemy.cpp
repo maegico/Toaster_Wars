@@ -44,7 +44,7 @@ void Enemy::update(float dt)
 		b.update(dt);
 		if (b.getPosition().x <= -1)
 		{
-			//bullets.erase(bullets.begin() + i);
+			bullets.erase(bullets.begin() + i);
 		}
 	}
 	if (time >= 1.f)

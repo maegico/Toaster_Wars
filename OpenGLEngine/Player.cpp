@@ -12,6 +12,9 @@ Player::Player(GameObject* _obj, GameObject* b)
 	up = down = shooting = false;
 	time = 0;
 	health = 10;
+	powerup = false;
+	powerUpTimer = 0;
+	playing = true;
 }
 
 
@@ -26,6 +29,15 @@ void Player::getPickup()
 void Player::update(float dt)
 {
 	time += dt;
+	if (powerup)
+	{
+		powerUpTimer += dt;
+		if (powerUpTimer >= 5.0f)
+		{
+			powerup = false;
+			powerUpTimer = 0.0f;
+		}
+	}
 	if (up && !down)
 	{
 		velocity = vec3(0, .5f, 0);
@@ -59,11 +71,27 @@ void Player::update(float dt)
 
 void Player::Shoot()
 {
-	vec3 pos = vec3(obj->getPosition().x + 0.2f, obj->getPosition().y, obj->getPosition().z);
-	bullets.push_back(Bullet(new GameObject(bulletPrefab),pos));
+	if (powerup)
+	{
+		vec3 pos1 = vec3(obj->getPosition().x + 0.2f, obj->getPosition().y, obj->getPosition().z);
+		vec3 pos2 = vec3(obj->getPosition().x + 0.2f, obj->getPosition().y + 0.1f, obj->getPosition().z);
+		vec3 pos3 = vec3(obj->getPosition().x + 0.2f, obj->getPosition().y - 0.1f, obj->getPosition().z);
+		bullets.push_back(Bullet(new GameObject(bulletPrefab), pos1));
+		bullets.push_back(Bullet(new GameObject(bulletPrefab), pos2));
+		bullets.push_back(Bullet(new GameObject(bulletPrefab), pos3));
+	}
+	else
+	{
+		vec3 pos = vec3(obj->getPosition().x + 0.2f, obj->getPosition().y, obj->getPosition().z);
+		bullets.push_back(Bullet(new GameObject(bulletPrefab), pos));
+	}
 }
 
 void Player::changeHealth(int damage)
 {
 	health += damage;
+	if (health <= 0)
+	{
+		playing = false;
+	}
 }
