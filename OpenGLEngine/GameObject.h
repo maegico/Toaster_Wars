@@ -27,6 +27,11 @@ public:
 	GameObject();
 	GameObject(Shape* shapePtr, glm::vec3 position, glm::vec3 velocity, float scale, glm::vec3 rotationAxis, float rotationAngle, float fov, glm::vec3 color);
 	GameObject(const GameObject& gameObjectCopy);
+	Shape * getShapePtr();
+	glm::vec3 getScale();
+	glm::vec3 getAxis();
+	float getAngle();
+	GameObject(GameObject *& gameObjectCopy);
 	~GameObject();
 
 	void update(windowData wndData);

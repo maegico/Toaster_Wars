@@ -94,6 +94,43 @@ GameObject::GameObject(const GameObject& gameObjectCopy)
 {
 }
 
+Shape* GameObject::getShapePtr()
+{
+	return shapePtr;
+}
+
+glm::vec3 GameObject::getScale()
+{
+	return mmData.scale;
+}
+
+glm::vec3 GameObject::getAxis()
+{
+	return mmData.rotationAxis;
+}
+
+float GameObject::getAngle()
+{
+	return mmData.rotationAngle;
+}
+
+GameObject::GameObject(GameObject *&gameObjectCopy)
+{
+	this->thresholdVel = 0.0005f;
+	this->rad = 0.25f;
+	shapePtr = gameObjectCopy->getShapePtr();
+	mmData.position = gameObjectCopy->getPosition();
+	velocity = gameObjectCopy->getVelocity();
+	mmData.scale = gameObjectCopy->getScale();
+	mmData.rotationAxis = gameObjectCopy->getAxis();
+	mmData.rotationAngle = gameObjectCopy->getAngle();
+	fov = gameObjectCopy->fov;
+	color = gameObjectCopy->color;
+	wndData.width = 400;
+	wndData.height = 300;
+	colliderPtr = gameObjectCopy->colliderPtr;
+}
+
 GameObject::~GameObject()
 {
 	if (colliderPtr != nullptr)
@@ -107,7 +144,7 @@ glm::vec3 halfpoint(glm::vec3 vec1, glm::vec3 vec2)
 
 void GameObject::update(windowData wndData)
 {
-	mmData.rotationAngle = 0.3f;
+	//mmData.rotationAngle = 0.3f;
 
 	/*glm::vec3 minOBB = shapePtr->verts[0];
 	glm::vec3 maxOBB = shapePtr->verts[0];

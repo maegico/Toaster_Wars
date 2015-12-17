@@ -54,7 +54,7 @@ void CameraObject::setFoV(float fov)
 
 CameraObject::CameraObject()
 {
-	position = glm::vec3(0, 0, 5);
+	position = glm::vec3(0, 0, 1);
 	yaw = 3.14f;
 	pitch = 0.0f;
 	fov = 45.0f;

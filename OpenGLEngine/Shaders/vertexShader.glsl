@@ -14,7 +14,7 @@ uniform mat4 projectionMatrix;
 
 void main()
 {
-	gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1);
+	gl_Position = viewMatrix * modelMatrix * vec4(position, 1);
 
 	fragTexUV = vecTexUV;
 	fragPos = gl_Position.xyz;

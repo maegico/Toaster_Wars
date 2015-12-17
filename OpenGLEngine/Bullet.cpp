@@ -4,20 +4,44 @@
 Bullet::Bullet()
 {
 	position = vec3(0, 0, 0);
-	velocity = vec3(0.005f, 0.0f, 0.0f);
+	velocity = vec3(0.5f, 0.0f, 0.0f);
+	damage = 1;
 }
 
-Bullet::Bullet(vec3 pos)
+Bullet::Bullet(GameObject* _obj, vec3 pos)
 {
-	position = pos;
-	velocity = vec3(0.005f, 0.0f, 0.0f);
+	obj = _obj;
+	obj->setPosition(pos);
+	velocity = vec3(0.5f, 0.0f, 0.0f);
+	damage = 1;
 }
-
 
 Bullet::~Bullet()
 {
 }
 
-void Bullet::setVelocity()
+void Bullet::update(float dt)
 {
+	obj->setPosition(obj->getPosition() + (velocity * dt));
+}
+
+void Bullet::draw()
+{
+	obj->draw(GL_TRIANGLES);
+}
+
+void Bullet::setViewMatrixData(glm::vec3 position, glm::vec3 oneAhead, glm::vec3 up)
+{
+	obj->setViewMatrixData(position, oneAhead, up);
+}
+
+bool Bullet::offScreen()
+{
+	if (obj->getPosition().x > 1) return true;
+	return false;
+}
+
+vec3 Bullet::getPosition()
+{
+	return obj->getPosition();
 }

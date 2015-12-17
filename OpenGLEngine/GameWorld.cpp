@@ -1,4 +1,6 @@
 #include "GameWorld.h"
+#include "Enemy.h"
+#include "Player.h"
 
 std::vector<Shape*> GameWorld::shapePtrs = std::vector<Shape*>(0);
 std::vector<GameObject*> GameWorld::gameObjPtrs = std::vector<GameObject*>(0);
@@ -15,6 +17,11 @@ GameObject* player;
 GameObject* enemy1;
 GameObject* enemy2;
 GameObject* pickup;
+GameObject* lightning;
+GameObject* bulletGO;
+vector<Enemy> enemies;
+Player play;
+int score;
 
 GameWorld::GameWorld()
 {
@@ -69,6 +76,8 @@ bool GameWorld::init()
 	modelData toast1 = { "Textures/toast1.png", "Models/toast1.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
 	modelData toast2 = { "Textures/toast2.png", "Models/toast2.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
 	modelData peanutButter = { "Textures/peanutButter.png", "Models/peanutButterPickup.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
+	modelData health = { "Textures/health.png", "Models/health.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
+	modelData bullet = { "Textures/bullet.png", "Models/bullet.obj",std::vector<glm::vec3>(), std::vector<glm::vec2>(), std::vector<glm::vec3>() };
 
 	if (!ModelLoaderManager::loadObj(model1.modelPath, model1.verts, model1.uvs, model1.normals))
 	{
@@ -95,30 +104,50 @@ bool GameWorld::init()
 		std::cout << "ERROR: loadObj failed." << std::endl;
 		return false;
 	}
+	if (!ModelLoaderManager::loadObj(health.modelPath, health.verts, health.uvs, health.normals))
+	{
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
+	}
+	if (!ModelLoaderManager::loadObj(bullet.modelPath, bullet.verts, bullet.uvs, bullet.normals))
+	{
+		std::cout << "ERROR: loadObj failed." << std::endl;
+		return false;
+	}
 
 	shapePtrs.push_back(new Shape(model1.verts, model1.uvs, model1.normals, model1.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(toaster.verts, toaster.uvs, toaster.normals, toaster.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(toast1.verts, toast1.uvs, toast1.normals, toast1.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(toast2.verts, toast2.uvs, toast2.normals, toast2.texturePath.c_str(), progIndex));
 	shapePtrs.push_back(new Shape(peanutButter.verts, peanutButter.uvs, peanutButter.normals, peanutButter.texturePath.c_str(), progIndex));
+	shapePtrs.push_back(new Shape(health.verts, health.uvs, health.normals, health.texturePath.c_str(), progIndex));
+	shapePtrs.push_back(new Shape(bullet.verts, bullet.uvs, bullet.normals, bullet.texturePath.c_str(), progIndex));
 
 	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
 
-	gameObjPtrs.push_back(new GameObject(shapePtrs[0], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
-	player = new GameObject(shapePtrs[1], threeDZero, threeDZero, 0.5f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	gameObjPtrs.push_back(new GameObject(shapePtrs[0], threeDZero, threeDZero, 0.05f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
+	player = new GameObject(shapePtrs[1], glm::vec3(-0.8f, 0.0f, 0.0f), threeDZero, 0.125f, glm::vec3(0, 0, 1), (-3.1415f/2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	enemy1 = new GameObject(shapePtrs[2], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	enemy2 = new GameObject(shapePtrs[3], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	pickup = new GameObject(shapePtrs[4], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	lightning = new GameObject(shapePtrs[5], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	bulletGO = new GameObject(shapePtrs[6], threeDZero, threeDZero, 0.2f, glm::vec3(0, 0, 1), (-3.1415f / 2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	play = Player(player, bulletGO);
+
+	score = 0;
 
 	return true;
 }
 
 bool GameWorld::update(GLFWwindow* windowPtr)
 {
-	for (int i = 0; i < gameObjPtrs.size(); ++i)
+
+	player->setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
+	for each(Bullet b in play.bullets)
 	{
-		gameObjPtrs[i]->setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
+		b.setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
 	}
 
 	double currentTime = glfwGetTime();
@@ -129,12 +158,12 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	//to voom out and in - glfwGetMouseWheel() is depricated
 	//camera.setFoV = lastFoV - 5 * glfwGetMouseWheel();
 
-	for (int i = 0; i < gameObjPtrs.size(); ++i)
-	{
-		gameObjPtrs[i]->update(wndData);
-	}
+	play.update(deltaTime);
+	player->update(wndData);
 
 	lastTime = currentTime;
+
+	cout << score << endl;
 
 	return quit;
 }
@@ -145,11 +174,16 @@ void GameWorld::draw()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//draw here
-	/*for (int i = 0; i < gameObjPtrs.size(); i++)
+	for (int i = 0; i < gameObjPtrs.size(); i++)
 	{
 		gameObjPtrs[i]->draw(GL_TRIANGLES);
-	}*/
-	gameObjPtrs[0]->draw(GL_TRIANGLES);
+	}
+
+	player->draw(GL_TRIANGLES);
+	for each(Bullet b in play.bullets)
+	{
+		b.draw();
+	}
 
 	glFlush();
 }
@@ -172,6 +206,18 @@ glm::vec2 GameWorld::getCursorPos(GLFWwindow* windowPtr)
 
 void GameWorld::keyPress(GLFWwindow* windowPtr, int key, int scancode, int action, int mods)
 {
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_PRESS)
+		play.up = true;
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && action == GLFW_RELEASE)
+		play.up = false;
+	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_PRESS)
+		play.down = true;
+	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && action == GLFW_RELEASE)
+		play.down = false;
+	if ((key == GLFW_KEY_SPACE) && action == GLFW_PRESS)
+		play.shooting = true;
+	if ((key == GLFW_KEY_SPACE) && action == GLFW_RELEASE)
+		play.shooting = false;
 	if ((key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS)
 		quit = true;
 }

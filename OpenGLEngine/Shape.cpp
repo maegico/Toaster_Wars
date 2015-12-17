@@ -71,5 +71,8 @@ void Shape::draw(modelMatrixData mmData, viewMatrixData vmData, windowData wndDa
 	glProgramUniformMatrix4fv(progIndex, uniformProjectionMatrixLoc, 1, GL_FALSE, &projectionMatrix[0][0]);
 	glProgramUniform4f(progIndex, uniformColorLoc, color.r, color.g, color.b, 1.0f);
 
+	glBindVertexArray(vAO);
+	glBindTexture(GL_TEXTURE_2D, texID);
+
 	glDrawArrays(drawType, 0, numVerts);
 }

@@ -10,7 +10,7 @@ Ship::~Ship()
 {
 }
 
-void Ship::setVelocity()
+void Ship::update(float dt)
 {
 }
 
