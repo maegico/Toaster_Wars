@@ -202,6 +202,12 @@ void GameObject::update(windowData wndData)
 	*/
 }
 
+void GameObject::update(windowData wndData, float dt)
+{
+	this->wndData = wndData;
+	mmData.position += velocity* dt;
+}
+
 void GameObject::draw(GLenum drawType)
 {
 	shapePtr->draw(mmData, vmData, wndData, fov, color, drawType);

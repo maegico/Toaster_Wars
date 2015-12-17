@@ -215,7 +215,7 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	}
 	for each(GameObject* p in pickups)
 	{
-		if(p != NULL) p->update(wndData);
+		if(p != NULL) p->update(wndData, deltaTime);
 	}
 	for (int i = 0; i < temp.size(); i++)
 	{
@@ -266,6 +266,7 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 					temp.push_back(b);
 				}
 				enemies.erase(enemies.begin() + i);
+				score += 100;
 			}
 		}
 		damageTimer = 0;
@@ -353,9 +354,9 @@ void GameWorld::keyPress(GLFWwindow* windowPtr, int key, int scancode, int actio
 	if ((key == GLFW_KEY_Q || key == GLFW_KEY_ESCAPE) && action == GLFW_PRESS)
 		quit = true;
 	if ((key == GLFW_KEY_L) && action == GLFW_PRESS)
-	{
 		play.changeHealth(-10);
-	}
+	if ((key == GLFW_KEY_P) && action == GLFW_PRESS)
+		play.powerup = true;
 }
 void GameWorld::mouseMove(GLFWwindow* windowPtr, double xpos, double ypos)
 {

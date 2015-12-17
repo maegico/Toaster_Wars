@@ -37,6 +37,7 @@ public:
 	~GameObject();
 
 	void update(windowData wndData);
+	void update(windowData wndData, float dt);
 	void draw(GLenum drawType);
 
 private:
