@@ -1,6 +1,7 @@
 #include "GameWorld.h"
 #include "Enemy.h"
 #include "Player.h"
+#include "OctTree.h"
 
 std::vector<Shape*> GameWorld::shapePtrs = std::vector<Shape*>(0);
 std::vector<GameObject*> GameWorld::gameObjPtrs = std::vector<GameObject*>(0);
@@ -19,9 +20,13 @@ GameObject* enemy2;
 GameObject* pickup;
 GameObject* lightning;
 GameObject* bulletGO;
-vector<Enemy> enemies;
+//OctTree tree;
+vector<Enemy*> enemies;
+vector<GameObject*> pickups;
 Player play;
 int score;
+float enemyTimer;
+float damageTimer;
 
 GameWorld::GameWorld()
 {
@@ -126,19 +131,49 @@ bool GameWorld::init()
 	glm::vec3 threeDZero = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec2 twoDZero = glm::vec2(0.0f, 0.0f);
 
+	//tree = OctTree(vec3(0.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.5f));
+
 	gameObjPtrs.push_back(new GameObject(shapePtrs[0], threeDZero, threeDZero, 0.05f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f)));
 	player = new GameObject(shapePtrs[1], glm::vec3(-0.8f, 0.0f, 0.0f), threeDZero, 0.125f, glm::vec3(0, 0, 1), (-3.1415f/2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
-	enemy1 = new GameObject(shapePtrs[2], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
-	enemy2 = new GameObject(shapePtrs[3], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
-	pickup = new GameObject(shapePtrs[4], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
-	lightning = new GameObject(shapePtrs[5], threeDZero, threeDZero, 0.25f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	enemy1 = new GameObject(shapePtrs[2], threeDZero, vec3(-0.3f, 0.0f, 0.0f), 0.05f, glm::vec3(0, 0, 1), (-3.1415f / 2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	enemy2 = new GameObject(shapePtrs[3], threeDZero, vec3(-0.3f, 0.0f, 0.0f), 0.05f, glm::vec3(0, 0, 1), (-3.1415f / 2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	pickup = new GameObject(shapePtrs[4], threeDZero, vec3(-0.1f, 0.0f, 0.0f), 0.04f, glm::vec3(1, 1, 0), 0, camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+	lightning = new GameObject(shapePtrs[5], threeDZero, vec3(-0.1f,0.0f,0.0f), 0.04f, glm::vec3(0, 1, 0), (-3.1415f / 2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
 	bulletGO = new GameObject(shapePtrs[6], threeDZero, threeDZero, 0.2f, glm::vec3(0, 0, 1), (-3.1415f / 2.f), camera.getFoV(), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	//tree.add(player->colliderPtr);
 
 	play = Player(player, bulletGO);
 
 	score = 0;
+	enemyTimer = 0;
+	damageTimer = 0;
+	srand(time(0));
 
 	return true;
+}
+
+GameObject* dropPickup(GameObject* obj)
+{
+	int chance = rand() % 100;
+	GameObject* toReturn = nullptr;
+	if (chance <= 60)
+	{
+		//nothing is dropped
+	}
+	else if (chance >= 61 && chance <= 90)
+	{
+		GameObject* toDrop = new GameObject(lightning);
+		toDrop->setPosition(obj->getPosition());
+		toReturn = toDrop;
+	}
+	else if (chance > 90)
+	{
+		GameObject* toDrop = new GameObject(pickup);
+		toDrop->setPosition(obj->getPosition());
+		toReturn = toDrop;
+	}
+	return toReturn;
 }
 
 bool GameWorld::update(GLFWwindow* windowPtr)
@@ -148,6 +183,14 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	for each(Bullet b in play.bullets)
 	{
 		b.setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
+	}
+	for each(Enemy* e in enemies)
+	{
+		e->setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
+	}
+	for each(GameObject* p in pickups)
+	{
+		if(p != NULL) p->setViewMatrixData(camera.getLocation(), camera.getOneAhead(), camera.getUp());
 	}
 
 	double currentTime = glfwGetTime();
@@ -161,9 +204,58 @@ bool GameWorld::update(GLFWwindow* windowPtr)
 	play.update(deltaTime);
 	player->update(wndData);
 
+	for each(Enemy* e in enemies)
+	{
+		e->update(deltaTime);
+	}
+	for each(GameObject* p in pickups)
+	{
+		if(p != NULL) p->update(wndData);
+	}
+
+	enemyTimer += deltaTime;
+	if (enemyTimer >= 3)
+	{
+		float yLoc = (rand() % 100) / 100.0f;
+		int chance = rand() % 2;
+		if (chance == 0) yLoc *= -1;
+		switch (chance)
+		{
+		case 0:
+			enemies.push_back(new Enemy(pickup, lightning, vec3(1.0f,yLoc,0.0f), new GameObject(enemy1), bulletGO));
+			//tree.add(enemies.back()->getCollider());
+			break;
+		case 1:
+			enemies.push_back(new Enemy(pickup, lightning, vec3(1.0f, yLoc, 0.0f), new GameObject(enemy2), bulletGO));
+			//tree.add(enemies.back()->getCollider());
+			break;
+		default:
+			enemies.push_back(new Enemy(pickup, lightning, vec3(1.0f, yLoc, 0.0f), new GameObject(enemy1), bulletGO));
+			//tree.add(enemies.back()->getCollider());
+			break;
+		}
+		enemyTimer = 0;
+	}
+
+	damageTimer += deltaTime;
+	if (damageTimer >= 1)
+	{
+		for (int i = 0; i < enemies.size(); i++)
+		{
+			Enemy* e = enemies[i];
+			bool test = e->changeHealth(-1,true);
+			if (test)
+			{
+				pickups.push_back(dropPickup(e->getOBJ()));
+				//enemies.erase(enemies.begin() + i);
+			}
+		}
+		damageTimer = 0;
+	}
+
 	lastTime = currentTime;
 
-	cout << score << endl;
+	//cout << score << endl;
 
 	return quit;
 }
@@ -183,6 +275,18 @@ void GameWorld::draw()
 	for each(Bullet b in play.bullets)
 	{
 		b.draw();
+	}
+	for each(Enemy* e in enemies)
+	{
+		e->draw();
+		for each(Bullet b in e->bullets)
+		{
+			b.draw();
+		}
+	}
+	for each(GameObject* p in pickups)
+	{
+		if(p != NULL) p->draw(GL_TRIANGLES);
 	}
 
 	glFlush();

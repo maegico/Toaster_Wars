@@ -18,6 +18,9 @@ public:
 	void setViewMatrixData(glm::vec3 position, glm::vec3 oneAhead, glm::vec3 up);
 	bool offScreen();
 	vec3 getPosition();
+	void setVelocity(vec3 vel);
+	void setAngle(float ang);
+	Collider3D* getCollider();
 
 private:
 	vec3 position;

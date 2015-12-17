@@ -1,6 +1,7 @@
 #pragma once
 #include "Ship.h"
 #include "GameObject.h"
+#include "OctTree.h"
 class Player :
 	public Ship
 {

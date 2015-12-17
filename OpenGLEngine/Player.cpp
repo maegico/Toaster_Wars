@@ -11,6 +11,7 @@ Player::Player(GameObject* _obj, GameObject* b)
 	bulletPrefab = b;
 	up = down = shooting = false;
 	time = 0;
+	health = 10;
 }
 
 

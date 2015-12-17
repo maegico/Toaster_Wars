@@ -45,3 +45,18 @@ vec3 Bullet::getPosition()
 {
 	return obj->getPosition();
 }
+
+void Bullet::setVelocity(vec3 vel)
+{
+	velocity = vel;
+}
+
+void Bullet::setAngle(float ang)
+{
+	obj->setAngle(ang);
+}
+
+Collider3D* Bullet::getCollider()
+{
+	return obj->colliderPtr;
+}

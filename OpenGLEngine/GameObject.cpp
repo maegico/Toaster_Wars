@@ -31,6 +31,11 @@ void GameObject::setViewMatrixData(glm::vec3 position, glm::vec3 oneAhead, glm::
 	vmData.up = up;
 }
 
+void GameObject::setAngle(float ang)
+{
+	mmData.rotationAngle = ang;
+}
+
 
 
 GameObject::GameObject()

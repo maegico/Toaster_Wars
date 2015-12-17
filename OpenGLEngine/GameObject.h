@@ -21,6 +21,8 @@ public:
 	void setPosition(glm::vec3 position);
 	glm::vec3 getPosition();
 	void setViewMatrixData(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
+	void setAngle(float ang);
+	void rotate(glm::vec3 axis, float angle);
 
 	Collider3D* colliderPtr;
 
